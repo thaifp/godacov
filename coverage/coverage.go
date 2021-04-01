@@ -20,10 +20,8 @@ type reportLine struct {
 }
 
 type fileCoverage struct {
-	numStatements     int
-	cntStatements     int
-	coveredStatements int
-	lines             map[int]int
+	linesCoverage map[string]reportLine
+	lines         map[int]int
 }
 
 type codacyCoverageJSON struct {
@@ -80,14 +78,16 @@ func GenerateCoverageJSON(coverageFile string) ([]byte, error) {
 		if file == nil {
 			file = new(fileCoverage)
 			files[parsed.file] = file
+			file.linesCoverage = make(map[string]reportLine)
 			file.lines = make(map[int]int)
 		}
 
-		file.cntStatements += parsed.cntStatements
-		file.numStatements += parsed.numStatements
-
-		if parsed.cntStatements > 0 {
-			file.coveredStatements += parsed.numStatements
+		if line, ok := file.linesCoverage[fmt.Sprintf("%d-%d", parsed.lineFrom, parsed.lineTo)]; ok {
+			if line.cntStatements == 0 {
+				file.linesCoverage[fmt.Sprintf("%d-%d", parsed.lineFrom, parsed.lineTo)] = parsed
+			}
+		} else {
+			file.linesCoverage[fmt.Sprintf("%d-%d", parsed.lineFrom, parsed.lineTo)] = parsed
 		}
 
 		for i := parsed.lineFrom; i <= parsed.lineTo; i++ {
@@ -96,7 +96,7 @@ func GenerateCoverageJSON(coverageFile string) ([]byte, error) {
 	}
 
 	total, perFile := calculatePercentages(files)
-	
+
 	covJSON := codacyCoverageJSON{}
 	covJSON.Total = total
 	covJSON.FileReports = make([]codacyFileCoverageJSON, 0)
@@ -151,15 +151,21 @@ func isSkippableLine(line string) bool {
 
 func calculatePercentages(files map[string]*fileCoverage) (int, map[string]int) {
 	totalNumStatements := 0
-	totalCntStatements := 0
 	totalCoveredStatements := 0
 	percentages := make(map[string]int)
 
 	for file, coverage := range files {
-		totalNumStatements += coverage.numStatements
-		totalCntStatements += coverage.cntStatements
-		totalCoveredStatements += coverage.coveredStatements
-		percentages[file] = calculatePercentage(coverage.numStatements, coverage.coveredStatements)
+		fileNumStatements := 0
+		fileCoveredStatements := 0
+		for _, line := range coverage.linesCoverage {
+			fileNumStatements += line.numStatements
+			if line.cntStatements > 0 {
+				fileCoveredStatements += line.numStatements
+			}
+		}
+		percentages[file] = calculatePercentage(fileNumStatements, fileCoveredStatements)
+		totalNumStatements += fileNumStatements
+		totalCoveredStatements += fileCoveredStatements
 	}
 
 	return calculatePercentage(totalNumStatements, totalCoveredStatements), percentages
