@@ -1,9 +1,8 @@
-module github.com/schrej/godacov
+module github.com/jainpiyush19/godacov
 
 require (
-	github.com/inconshreveable/mousetrap v1.0.0 // indirect
+	github.com/schrej/godacov v0.0.0-20191017093636-565cfab00b51
 	github.com/spf13/cobra v0.0.3
-	github.com/spf13/pflag v1.0.3 // indirect
 )
 
 go 1.13
