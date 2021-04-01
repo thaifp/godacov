@@ -17,11 +17,11 @@ import (
 	"bytes"
 	"crypto/tls"
 	"fmt"
+	"github.com/jainpiyush19/godacov/coverage"
 	"io/ioutil"
 	"net/http"
 	"os"
 
-	"github.com/schrej/godacov/coverage"
 	"github.com/spf13/cobra"
 )
 
