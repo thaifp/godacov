@@ -17,7 +17,8 @@ import (
 	"bytes"
 	"crypto/tls"
 	"fmt"
-	"github.com/jainpiyush19/godacov/coverage"
+	"github.com/thaifp/godacov/coverage"
+
 	"io/ioutil"
 	"net/http"
 	"os"
