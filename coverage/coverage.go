@@ -51,7 +51,8 @@ func GenerateCoverageJSON(coverageFile string) ([]byte, error) {
 	regex, _ = regexp.Compile(regexpString)
 
 	fileReader, err := os.Open(coverageFile)
-	defer func() { _ = fileReader.Close() }()
+
+	//defer func() { _ = fileReader.Close() }()
 	if err != nil {
 		return nil, err
 	}
